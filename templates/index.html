@@ -1,0 +1,1480 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>Auto Data Cleaner</title>
+
+
+    <style>
+
+        /* =====================================================
+           GLOBAL
+        ===================================================== */
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: Arial, Helvetica, sans-serif;
+        }
+
+
+        body {
+            background: #f4f7fb;
+            color: #1f2937;
+            min-height: 100vh;
+        }
+
+
+        /* =====================================================
+           HEADER
+        ===================================================== */
+
+        .header {
+            background: linear-gradient(
+                135deg,
+                #111827,
+                #2563eb
+            );
+
+            color: white;
+
+            padding: 32px 20px;
+
+            text-align: center;
+        }
+
+
+        .header h1 {
+            font-size: 34px;
+            margin-bottom: 10px;
+        }
+
+
+        .header p {
+            font-size: 16px;
+            opacity: 0.92;
+        }
+
+
+        /* =====================================================
+           MAIN CONTAINER
+        ===================================================== */
+
+        .container {
+            width: 92%;
+            max-width: 1250px;
+            margin: 35px auto;
+        }
+
+
+        /* =====================================================
+           ERROR
+        ===================================================== */
+
+        .error {
+            background: #fee2e2;
+            color: #991b1b;
+
+            border-left: 5px solid #dc2626;
+
+            padding: 16px 18px;
+
+            border-radius: 9px;
+
+            margin-bottom: 25px;
+
+            font-size: 15px;
+        }
+
+
+        /* =====================================================
+           UPLOAD CARD
+        ===================================================== */
+
+        .upload-card {
+            background: white;
+
+            border-radius: 18px;
+
+            padding: 32px;
+
+            box-shadow:
+                0 8px 25px rgba(
+                    0,
+                    0,
+                    0,
+                    0.08
+                );
+
+            margin-bottom: 35px;
+        }
+
+
+        .section-title {
+            font-size: 22px;
+
+            font-weight: bold;
+
+            margin-bottom: 20px;
+
+            color: #111827;
+        }
+
+
+        /* =====================================================
+           UPLOAD AREA
+        ===================================================== */
+
+        .upload-area {
+
+            width: 100%;
+
+            min-height: 320px;
+
+            border: 2px dashed #2563eb;
+
+            border-radius: 15px;
+
+            padding: 45px 25px;
+
+            display: flex;
+
+            flex-direction: column;
+
+            align-items: center;
+
+            justify-content: center;
+
+            text-align: center;
+
+            background: #f8fbff;
+
+            transition: 0.3s;
+
+        }
+
+
+        .upload-area.dragover {
+
+            background: #eef5ff;
+
+            border-color: #1d4ed8;
+
+            transform: scale(1.01);
+
+        }
+
+
+        .upload-icon {
+
+            font-size: 52px;
+
+            margin-bottom: 16px;
+
+        }
+
+
+        .upload-area h3 {
+
+            font-size: 21px;
+
+            margin-bottom: 9px;
+
+            color: #111827;
+
+        }
+
+
+        .upload-area p {
+
+            color: #6b7280;
+
+            margin-bottom: 22px;
+
+            font-size: 15px;
+
+        }
+
+
+        /* =====================================================
+           FILE INPUT
+        ===================================================== */
+
+        input[type="file"] {
+
+            display: none;
+
+        }
+
+
+        /* =====================================================
+           SELECT FILE BUTTON
+        ===================================================== */
+
+        .choose-btn {
+
+            display: inline-block;
+
+            background: #2563eb;
+
+            color: white;
+
+            padding: 13px 30px;
+
+            border-radius: 9px;
+
+            font-weight: bold;
+
+            cursor: pointer;
+
+            transition: 0.2s;
+
+        }
+
+
+        .choose-btn:hover {
+
+            background: #1d4ed8;
+
+            transform: translateY(-1px);
+
+        }
+
+
+        /* =====================================================
+           FILE NAME
+        ===================================================== */
+
+        .file-name {
+
+            margin-top: 20px;
+
+            font-weight: bold;
+
+            color: #2563eb;
+
+            word-break: break-word;
+
+        }
+
+
+        /* =====================================================
+           CLEAN BUTTON
+        ===================================================== */
+
+        .clean-btn {
+
+            margin-top: 25px;
+
+            width: 100%;
+
+            padding: 16px;
+
+            background: #16a34a;
+
+            color: white;
+
+            border: none;
+
+            border-radius: 10px;
+
+            font-size: 17px;
+
+            font-weight: bold;
+
+            cursor: pointer;
+
+            transition: 0.2s;
+
+        }
+
+
+        .clean-btn:hover {
+
+            background: #15803d;
+
+            transform: translateY(-1px);
+
+        }
+
+
+        .clean-btn:disabled {
+
+            background: #9ca3af;
+
+            cursor: not-allowed;
+
+            transform: none;
+
+        }
+
+
+        /* =====================================================
+           LOADING
+        ===================================================== */
+
+        .loading {
+
+            display: none;
+
+            text-align: center;
+
+            margin-top: 18px;
+
+            color: #2563eb;
+
+            font-weight: bold;
+
+        }
+
+
+        .spinner {
+
+            display: inline-block;
+
+            width: 17px;
+
+            height: 17px;
+
+            border: 3px solid #dbeafe;
+
+            border-top: 3px solid #2563eb;
+
+            border-radius: 50%;
+
+            animation: spin 0.8s linear infinite;
+
+            vertical-align: middle;
+
+            margin-right: 8px;
+
+        }
+
+
+        @keyframes spin {
+
+            to {
+                transform: rotate(360deg);
+            }
+
+        }
+
+
+        /* =====================================================
+           REPORT
+        ===================================================== */
+
+        .report-section {
+
+            margin-top: 35px;
+
+        }
+
+
+        .report-grid {
+
+            display: grid;
+
+            grid-template-columns:
+                repeat(
+                    auto-fit,
+                    minmax(
+                        220px,
+                        1fr
+                    )
+                );
+
+            gap: 18px;
+
+        }
+
+
+        .report-card {
+
+            background: white;
+
+            border-radius: 15px;
+
+            padding: 23px;
+
+            box-shadow:
+                0 5px 18px rgba(
+                    0,
+                    0,
+                    0,
+                    0.07
+                );
+
+            border: 1px solid #eef2f7;
+
+            transition: 0.2s;
+
+        }
+
+
+        .report-card:hover {
+
+            transform: translateY(-3px);
+
+        }
+
+
+        .report-card h4 {
+
+            color: #6b7280;
+
+            font-size: 14px;
+
+            margin-bottom: 11px;
+
+            font-weight: 600;
+
+        }
+
+
+        .report-card .number {
+
+            font-size: 29px;
+
+            font-weight: bold;
+
+            color: #111827;
+
+        }
+
+
+        /* =====================================================
+           AI BUSINESS ANALYSIS
+        ===================================================== */
+
+        .ai-section {
+
+            margin-top: 40px;
+
+        }
+
+
+        .ai-card {
+
+            background: white;
+
+            border-radius: 18px;
+
+            padding: 30px;
+
+            box-shadow:
+                0 8px 25px rgba(
+                    0,
+                    0,
+                    0,
+                    0.08
+                );
+
+            border: 1px solid #e5e7eb;
+
+        }
+
+
+        .ai-header {
+
+            display: flex;
+
+            align-items: center;
+
+            gap: 16px;
+
+            padding-bottom: 22px;
+
+            margin-bottom: 25px;
+
+            border-bottom:
+                1px solid #e5e7eb;
+
+        }
+
+
+        .ai-icon {
+
+            width: 58px;
+
+            height: 58px;
+
+            display: flex;
+
+            align-items: center;
+
+            justify-content: center;
+
+            border-radius: 15px;
+
+            background: #eef2ff;
+
+            font-size: 30px;
+
+            flex-shrink: 0;
+
+        }
+
+
+        .ai-header h2 {
+
+            font-size: 24px;
+
+            margin-bottom: 6px;
+
+            color: #111827;
+
+        }
+
+
+        .ai-header p {
+
+            color: #6b7280;
+
+            font-size: 14px;
+
+        }
+
+
+        .ai-result {
+
+            color: #374151;
+
+            font-size: 15px;
+
+            line-height: 1.85;
+
+            white-space: pre-wrap;
+
+            background: #f8fafc;
+
+            padding: 25px;
+
+            border-radius: 13px;
+
+            border-left:
+                4px solid #2563eb;
+
+            overflow-wrap: break-word;
+
+        }
+
+
+        /* =====================================================
+           OUTPUT
+        ===================================================== */
+
+        .output-section {
+
+            margin-top: 40px;
+
+        }
+
+
+        .output-card {
+
+            background: white;
+
+            border-radius: 18px;
+
+            padding: 28px;
+
+            box-shadow:
+                0 8px 25px rgba(
+                    0,
+                    0,
+                    0,
+                    0.08
+                );
+
+            overflow: hidden;
+
+        }
+
+
+        .output-header {
+
+            display: flex;
+
+            justify-content: space-between;
+
+            align-items: center;
+
+            gap: 15px;
+
+            flex-wrap: wrap;
+
+            margin-bottom: 20px;
+
+        }
+
+
+        .output-subtitle {
+
+            color: #6b7280;
+
+            font-size: 14px;
+
+            margin-top: -10px;
+
+        }
+
+
+        /* =====================================================
+           DOWNLOAD BUTTON
+        ===================================================== */
+
+        .download-btn {
+
+            display: inline-block;
+
+            text-decoration: none;
+
+            background: #111827;
+
+            color: white;
+
+            padding: 12px 20px;
+
+            border-radius: 9px;
+
+            font-weight: bold;
+
+            transition: 0.2s;
+
+        }
+
+
+        .download-btn:hover {
+
+            background: #374151;
+
+            transform: translateY(-1px);
+
+        }
+
+
+        /* =====================================================
+           TABLE
+        ===================================================== */
+
+        .table-container {
+
+            width: 100%;
+
+            overflow-x: auto;
+
+            border: 1px solid #e5e7eb;
+
+            border-radius: 10px;
+
+        }
+
+
+        .data-table {
+
+            width: 100%;
+
+            border-collapse: collapse;
+
+            min-width: 750px;
+
+        }
+
+
+        .data-table th {
+
+            background: #eff6ff;
+
+            color: #1e3a8a;
+
+            padding: 14px;
+
+            text-align: left;
+
+            font-size: 14px;
+
+            border-bottom:
+                2px solid #dbeafe;
+
+            white-space: nowrap;
+
+        }
+
+
+        .data-table td {
+
+            padding: 13px 14px;
+
+            border-bottom:
+                1px solid #e5e7eb;
+
+            font-size: 14px;
+
+            white-space: nowrap;
+
+        }
+
+
+        .data-table tr:last-child td {
+
+            border-bottom: none;
+
+        }
+
+
+        .data-table tr:hover td {
+
+            background: #f9fafb;
+
+        }
+
+
+        /* =====================================================
+           FOOTER
+        ===================================================== */
+
+        .footer {
+
+            text-align: center;
+
+            padding: 35px 20px;
+
+            color: #6b7280;
+
+            font-size: 14px;
+
+        }
+
+
+        /* =====================================================
+           MOBILE
+        ===================================================== */
+
+        @media (max-width: 700px) {
+
+            .header h1 {
+
+                font-size: 27px;
+
+            }
+
+
+            .header p {
+
+                font-size: 14px;
+
+            }
+
+
+            .container {
+
+                width: 95%;
+
+            }
+
+
+            .upload-card,
+            .ai-card,
+            .output-card {
+
+                padding: 20px;
+
+            }
+
+
+            .upload-area {
+
+                min-height: 270px;
+
+                padding: 30px 15px;
+
+            }
+
+
+            .report-grid {
+
+                grid-template-columns: 1fr;
+
+            }
+
+
+            .output-header {
+
+                align-items: stretch;
+
+            }
+
+
+            .download-btn {
+
+                width: 100%;
+
+                text-align: center;
+
+            }
+
+
+            .ai-header {
+
+                align-items: flex-start;
+
+            }
+
+        }
+
+    </style>
+
+</head>
+
+
+<body>
+
+
+    <!-- =====================================================
+         HEADER
+    ====================================================== -->
+
+    <header class="header">
+
+        <h1>
+            Auto Data Cleaner
+        </h1>
+
+        <p>
+            Upload your dataset and automatically
+            clean, analyze and understand your data
+        </p>
+
+    </header>
+
+
+
+    <main class="container">
+
+
+        <!-- =================================================
+             ERROR
+        ================================================== -->
+
+        {% if error %}
+
+        <div class="error">
+
+            ⚠️ {{ error }}
+
+        </div>
+
+        {% endif %}
+
+
+
+        <!-- =================================================
+             UPLOAD SECTION
+        ================================================== -->
+
+        <section class="upload-card">
+
+
+            <div class="section-title">
+
+                Upload Your Dataset
+
+            </div>
+
+
+            <form
+                id="uploadForm"
+                action="{{ url_for('upload_file') }}"
+                method="POST"
+                enctype="multipart/form-data"
+            >
+
+
+                <!-- UPLOAD BOX -->
+
+                <div
+                    class="upload-area"
+                    id="uploadArea"
+                >
+
+
+                    <div class="upload-icon">
+
+                        📊
+
+                    </div>
+
+
+                    <h3>
+
+                        Drag & Drop Your File
+
+                    </h3>
+
+
+                    <p>
+
+                        or choose a file from your computer
+
+                    </p>
+
+
+                    <label
+                        for="fileInput"
+                        class="choose-btn"
+                    >
+
+                        Select File
+
+                    </label>
+
+
+                    <input
+                        type="file"
+                        id="fileInput"
+                        name="file"
+                        accept=".csv,.xlsx,.xls"
+                        required
+                    >
+
+
+                    <div
+                        class="file-name"
+                        id="fileName"
+                    >
+
+                        No file selected
+
+                    </div>
+
+
+                </div>
+
+
+                <!-- CLEAN BUTTON -->
+
+                <button
+                    type="submit"
+                    class="clean-btn"
+                    id="cleanButton"
+                >
+
+                    🧹 Clean My Data
+
+                </button>
+
+
+                <!-- LOADING -->
+
+                <div
+                    class="loading"
+                    id="loading"
+                >
+
+                    <span class="spinner"></span>
+
+                    Cleaning your data and generating
+                    AI analysis...
+
+                </div>
+
+
+            </form>
+
+        </section>
+
+
+
+        <!-- =================================================
+             CLEANING REPORT
+        ================================================== -->
+
+        {% if report %}
+
+        <section class="report-section">
+
+
+            <div class="section-title">
+
+                Cleaning Report
+
+            </div>
+
+
+            <div class="report-grid">
+
+
+                <!-- DUPLICATES -->
+
+                <div class="report-card">
+
+                    <h4>
+                        Duplicates Removed
+                    </h4>
+
+                    <div class="number">
+
+                        {{ report.duplicates }}
+
+                    </div>
+
+                </div>
+
+
+                <!-- MISSING -->
+
+                <div class="report-card">
+
+                    <h4>
+                        Missing Values Handled
+                    </h4>
+
+                    <div class="number">
+
+                        {{ report.missing_values }}
+
+                    </div>
+
+                </div>
+
+
+                <!-- DATA TYPES -->
+
+                <div class="report-card">
+
+                    <h4>
+                        Data Types Converted
+                    </h4>
+
+                    <div class="number">
+
+                        {{ report.data_types }}
+
+                    </div>
+
+                </div>
+
+
+                <!-- OUTLIERS -->
+
+                <div class="report-card">
+
+                    <h4>
+                        Potential Outliers
+                    </h4>
+
+                    <div class="number">
+
+                        {{ report.outliers }}
+
+                    </div>
+
+                </div>
+
+
+                <!-- ROWS BEFORE -->
+
+                <div class="report-card">
+
+                    <h4>
+                        Rows Before
+                    </h4>
+
+                    <div class="number">
+
+                        {{ report.rows_before }}
+
+                    </div>
+
+                </div>
+
+
+                <!-- ROWS AFTER -->
+
+                <div class="report-card">
+
+                    <h4>
+                        Rows After
+                    </h4>
+
+                    <div class="number">
+
+                        {{ report.rows_after }}
+
+                    </div>
+
+                </div>
+
+
+                <!-- COLUMNS BEFORE -->
+
+                <div class="report-card">
+
+                    <h4>
+                        Columns Before
+                    </h4>
+
+                    <div class="number">
+
+                        {{ report.columns_before }}
+
+                    </div>
+
+                </div>
+
+
+                <!-- COLUMNS AFTER -->
+
+                <div class="report-card">
+
+                    <h4>
+                        Columns After
+                    </h4>
+
+                    <div class="number">
+
+                        {{ report.columns_after }}
+
+                    </div>
+
+                </div>
+
+
+            </div>
+
+        </section>
+
+        {% endif %}
+
+
+
+        <!-- =================================================
+             AI BUSINESS ANALYSIS
+        ================================================== -->
+
+        {% if ai_analysis %}
+
+        <section class="ai-section">
+
+
+            <div class="ai-card">
+
+
+                <div class="ai-header">
+
+
+                    <div class="ai-icon">
+
+                        🤖
+
+                    </div>
+
+
+                    <div>
+
+                        <h2>
+                            AI Business Analysis
+                        </h2>
+
+                        <p>
+                            Insights, recommendations,
+                            improvement areas and growth opportunities
+                        </p>
+
+                    </div>
+
+
+                </div>
+
+
+                <div class="ai-result">
+
+                    {{ ai_analysis }}
+
+                </div>
+
+
+            </div>
+
+        </section>
+
+        {% endif %}
+
+
+
+        <!-- =================================================
+             CLEANED DATA
+        ================================================== -->
+
+        {% if preview %}
+
+        <section class="output-section">
+
+
+            <div class="output-card">
+
+
+                <div class="output-header">
+
+
+                    <div>
+
+                        <div class="section-title">
+
+                            Cleaned Data Preview
+
+                        </div>
+
+
+                        <p class="output-subtitle">
+
+                            Showing the first 20 rows
+                            of your cleaned dataset
+
+                        </p>
+
+                    </div>
+
+
+                    {% if download_url %}
+
+                    <a
+                        href="{{ download_url }}"
+                        class="download-btn"
+                    >
+
+                        ⬇ Download Cleaned CSV
+
+                    </a>
+
+                    {% endif %}
+
+
+                </div>
+
+
+                <div class="table-container">
+
+                    {{ preview | safe }}
+
+                </div>
+
+
+            </div>
+
+        </section>
+
+        {% endif %}
+
+
+    </main>
+
+
+
+    <!-- =====================================================
+         FOOTER
+    ====================================================== -->
+
+    <footer class="footer">
+
+        Auto Data Cleaner
+        •
+        Powered by Python, Pandas, Flask & AI
+
+    </footer>
+
+
+
+    <!-- =====================================================
+         JAVASCRIPT
+    ====================================================== -->
+
+    <script>
+
+        /* =================================================
+           ELEMENTS
+        ================================================= */
+
+        const fileInput =
+            document.getElementById("fileInput");
+
+        const fileName =
+            document.getElementById("fileName");
+
+        const uploadArea =
+            document.getElementById("uploadArea");
+
+        const uploadForm =
+            document.getElementById("uploadForm");
+
+        const cleanButton =
+            document.getElementById("cleanButton");
+
+        const loading =
+            document.getElementById("loading");
+
+
+
+        /* =================================================
+           FILE SELECTION
+        ================================================= */
+
+        fileInput.addEventListener(
+            "change",
+            function () {
+
+                if (this.files.length > 0) {
+
+                    fileName.textContent =
+                        "Selected file: "
+                        + this.files[0].name;
+
+                } else {
+
+                    fileName.textContent =
+                        "No file selected";
+
+                }
+
+            }
+        );
+
+
+
+        /* =================================================
+           DRAG OVER
+        ================================================= */
+
+        uploadArea.addEventListener(
+            "dragover",
+            function (event) {
+
+                event.preventDefault();
+
+                uploadArea.classList.add(
+                    "dragover"
+                );
+
+            }
+        );
+
+
+
+        /* =================================================
+           DRAG LEAVE
+        ================================================= */
+
+        uploadArea.addEventListener(
+            "dragleave",
+            function () {
+
+                uploadArea.classList.remove(
+                    "dragover"
+                );
+
+            }
+        );
+
+
+
+        /* =================================================
+           DROP FILE
+        ================================================= */
+
+        uploadArea.addEventListener(
+            "drop",
+            function (event) {
+
+                event.preventDefault();
+
+                uploadArea.classList.remove(
+                    "dragover"
+                );
+
+
+                const files =
+                    event.dataTransfer.files;
+
+
+                if (files.length > 0) {
+
+                    const file =
+                        files[0];
+
+
+                    const extension =
+                        file.name
+                        .split(".")
+                        .pop()
+                        .toLowerCase();
+
+
+                    const allowed =
+                        [
+                            "csv",
+                            "xlsx",
+                            "xls"
+                        ];
+
+
+                    if (
+                        allowed.includes(
+                            extension
+                        )
+                    ) {
+
+                        fileInput.files =
+                            files;
+
+                        fileName.textContent =
+                            "Selected file: "
+                            + file.name;
+
+                    } else {
+
+                        fileName.textContent =
+                            "Unsupported file type";
+
+                    }
+
+                }
+
+            }
+        );
+
+
+
+        /* =================================================
+           SUBMIT / LOADING
+        ================================================= */
+
+        uploadForm.addEventListener(
+            "submit",
+            function () {
+
+                cleanButton.disabled =
+                    true;
+
+                cleanButton.textContent =
+                    "⏳ Processing...";
+
+                loading.style.display =
+                    "block";
+
+            }
+        );
+
+    </script>
+
+
+</body>
+
+</html>
