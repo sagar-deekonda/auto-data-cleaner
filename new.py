@@ -16,6 +16,15 @@ from openai import OpenAI
 
 app = Flask(__name__)
 
+app.config["MAX_CONTENT_LENGTH"] = 25 * 1024 * 1024
+
+@app.errorhandler(413)
+def file_too_large(error):
+    return render_template(
+        "index.html",
+        error="File is too large. Please upload a file smaller than 25 MB."
+    ), 413
+
 
 # ============================================================
 # FOLDERS
