@@ -68,6 +68,10 @@ The application generates:
 - Management Action Plan
 - Data Limitations
 
+- ## Screenshots ##
+
+- ![Auto_data_cleaning](Screenshorts/Screenshort_1.png)
+
 
 ## 👨‍💻 Author
 
